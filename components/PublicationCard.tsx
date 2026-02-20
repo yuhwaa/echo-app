@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 
 export default function PublicationCard ({ pub }: { pub: Publication}) {
     return (
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card className="hover:shadow-lg transition-shadow border-gray-300">
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-lg font-bold">
                     {pub.title}
