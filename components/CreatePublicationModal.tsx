@@ -30,7 +30,7 @@ export default function CreatePublicationModal({ onAdd }: { onAdd: (pub: Publica
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-slate-900 text-white rounded-full px-6">+ Create New</Button>
+        <Button className="bg-emerald-700 text-white rounded-full px-6 hover:bg-emerald-500 transition-colors shadow-md border-none">+ Create New</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
