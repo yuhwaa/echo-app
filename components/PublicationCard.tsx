@@ -7,7 +7,7 @@ export default function PublicationCard ({ pub, onDelete }: { pub: Publication, 
     const handleDelete = async (e: React.MouseEvent) => {
         e.stopPropagation();
 
-        if (confirm("Delete this publication?")) {
+        if (confirm("Are you sure you want to delete this publication?")) {
             const { error } = await supabase
             .from('publications')
             .delete()
