@@ -35,6 +35,10 @@ export default function Home() {
     setPublications((prev) => [newPub, ...prev]);
   };
 
+  const handleDelete = (id: string) => {
+    setPublications((prev) => prev.filter(p => p.id !== id));
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 p-8">
       <div className="max-w-6xl mx-auto">
@@ -51,7 +55,7 @@ export default function Home() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {publications.map((pub) => (
-              <PublicationCard key={pub.id} pub={pub} />
+              <PublicationCard key={pub.id} pub={pub} onDelete={handleDelete}/>
             ))}
           </div>
         )}
