@@ -15,6 +15,7 @@ export default function CreatePublicationModal({ onAdd }: { onAdd: (pub: Publica
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [publicationDate, setPublicationDate] = useState("");
+  const [status, setStatus] = useState<Publication['status']>("In Queue");
 
   const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
@@ -24,7 +25,7 @@ export default function CreatePublicationModal({ onAdd }: { onAdd: (pub: Publica
   const { data: pubData, error: pubError } = await supabase
     .from('publications')
     .insert([
-      { title, type, status: 'In Queue', publication_date: publicationDate || null }
+      { title, type, status, publication_date: publicationDate || null }
     ])
     .select()
     .single();
@@ -96,6 +97,20 @@ export default function CreatePublicationModal({ onAdd }: { onAdd: (pub: Publica
                 <SelectItem value="Insights Podcast">Insights Podcast</SelectItem>
                 <SelectItem value="Insights Video">Insights Video</SelectItem>
                 <SelectItem value="Memo">Memo</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Status</label>
+            <Select onValueChange={(value: Publication['status']) => setStatus(value)} defaultValue={status}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="In Queue">In Queue</SelectItem>
+                <SelectItem value="In Progress">In Progress</SelectItem>
+                <SelectItem value="Live">Live</SelectItem>
+                <SelectItem value="Canceled">Canceled</SelectItem>
               </SelectContent>
             </Select>
           </div>
