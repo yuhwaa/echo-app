@@ -17,7 +17,7 @@ export default function CreatePublicationModal({ onAdd }: { onAdd: (pub: Publica
   const [publicationDate, setPublicationDate] = useState("");
   const [status, setStatus] = useState<Publication['status']>("In Queue");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
   setLoading(true);
 

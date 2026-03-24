@@ -11,5 +11,6 @@ export type Publication = {
 export type Subtask = {
     id: string;
     title: string;
-    isCompleted: boolean;
+    status: 'In Queue' | 'In Progress' | 'Canceled';
+    is_completed: boolean;
 };
