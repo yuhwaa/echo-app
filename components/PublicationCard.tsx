@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, CalendarDays, ChevronRight, MessageSquare, Paperclip, Pencil, Trash2, X } from "lucide-react";
 import { Publication, Subtask } from "@/types";
 
-export default function PublicationCard ({ pub, onDelete }: { pub: Publication, onDelete: (id: string) => void }) {
+export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Publication, onDelete: (id: string) => void, onUpdate: (updatedPub: Partial<Publication> & { id: string }) => void }) {
     const handleDelete = async (e: React.MouseEvent) => {
         e.stopPropagation();
 
@@ -37,7 +37,7 @@ export default function PublicationCard ({ pub, onDelete }: { pub: Publication, 
         .eq('id', pub.id);
       
       if (!error) {
-        window.location.reload();
+        onUpdate({ id: pub.id, ...updates });
       }
     }
     const [isEditingTitle, setIsEditingTitle] = useState(false);

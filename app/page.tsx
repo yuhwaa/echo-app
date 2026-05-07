@@ -39,6 +39,12 @@ export default function Home() {
     setPublications((prev) => prev.filter(p => p.id !== id));
   };
 
+  const handleUpdate = (updatedPub: Partial<Publication> & { id: string }) => {
+    setPublications((prev) =>
+      prev.map(p => p.id === updatedPub.id ? {...p, updatedPub } : p)
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 p-8">
       <div className="max-w-6xl mx-auto">
@@ -55,7 +61,7 @@ export default function Home() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {publications.map((pub) => (
-              <PublicationCard key={pub.id} pub={pub} onDelete={handleDelete}/>
+              <PublicationCard key={pub.id} pub={pub} onDelete={handleDelete} onUpdate={handleUpdate}/>
             ))}
           </div>
         )}
