@@ -8,7 +8,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, CalendarDays, ChevronRight, MessageSquare, Paperclip, Pencil, Trash2, X } from "lucide-react";
-import { Publication, Subtask } from "@/types";
+import { Publication, Subtask, Comment } from "@/types";
 
 export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Publication, onDelete: (id: string) => void, onUpdate: (updatedPub: Partial<Publication> & { id: string }) => void }) {
     const handleDelete = async (e: React.MouseEvent) => {
@@ -51,6 +51,41 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
       }
       setIsEditingTitle(false);
     }
+    const [comments, setComments] = useState<Comment[]>([]);
+    const [newComment, setNewComment] = useState('');
+    const [commentsLoading, setCommentsLoading] = useState(false);
+    const fetchComments = async (subtaskId: string) => {
+      setCommentsLoading(true);
+      const { data, error } = await supabase
+        .from('subtask_comments')
+        .select('*')
+        .eq('subtask_id', subtaskId)
+        .order('created_at', { ascending: true });
+      
+      if (!error && data) {
+        setComments(data);
+      }
+      setCommentsLoading(false);
+    };
+
+    const handleAddComment = async () => {
+      if (!newComment.trim() || !selectedSubtask) return;
+      
+      const { data, error } = await supabase
+        .from('subtask_comments')
+        .insert({
+          subtask_id: selectedSubtask.id,
+          content: newComment.trim(),
+          author: 'Admin'
+        })
+        .select()
+        .single();
+      
+      if (!error && data) {
+        setComments((prev) => [...prev, data]);
+        setNewComment('');
+      }
+    };
     return (
         <Sheet onOpenChange={(open) => !open && setSelectedSubtask(null)}>
         <SheetTrigger asChild>
@@ -216,7 +251,10 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
             {pub.subtasks?.map((task) => (
                <div 
                  key={task.id} 
-                 onClick={() => setSelectedSubtask(task)}
+                 onClick={() => {
+                  setSelectedSubtask(task);
+                  fetchComments(task.id);
+                }}
                  className={`p-4 mb-2 rounded-xl border cursor-pointer transition-all ${
                    selectedSubtask?.id === task.id ? 'border-emerald-500 bg-emerald-50/30' : 'border-gray-100 hover:border-emerald-200'
                  }`}
@@ -248,19 +286,41 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
             <TabsTrigger value="files" className="flex-1">Files</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="comments" className="flex-1 p-6 overflow-y-auto">
-             {/* Comment Thread with Likes/Replies logic will go here */}
-             <div className="space-y-4">
-                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                   <p className="text-xs font-bold text-slate-900">Admin</p>
-                   <p className="text-sm text-slate-600 mt-1">Is the transcript ready for this yet?</p>
-                   <div className="flex gap-4 mt-3">
-                      <button className="text-[10px] font-bold text-emerald-600">LIKE</button>
-                      <button className="text-[10px] font-bold text-slate-400">REPLY</button>
-                   </div>
-                </div>
-             </div>
-          </TabsContent>
+          <TabsContent value="comments" className="flex-1 p-6 overflow-y-auto flex flex-col gap-4">
+            {/* Comment list */}
+            <div className="space-y-4 flex-1">
+              {comments.length === 0 ? (
+                <p className="text-sm text-slate-400 text-center py-8">No comments yet</p>
+              ) : (
+                comments.map((comment) => (
+                  <div key={comment.id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                    <p className="text-xs font-bold text-slate-900">{comment.author}</p>
+                    <p className="text-sm text-slate-600 mt-1">{comment.content}</p>
+                    <p className="text-[10px] text-slate-300 mt-2">
+                      {new Date(comment.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* New comment input */}
+            <div className="flex gap-2 pt-4 border-t border-gray-100">
+              <Input
+                placeholder="Add a comment..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
+                className="flex-1 text-sm"
+            />
+            <button
+                onClick={handleAddComment}
+                className="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition-colors"
+            >
+              Post
+            </button>
+          </div>
+        </TabsContent>
 
           <TabsContent value="files" className="p-6">
              <div className="border-2 border-dashed border-gray-300 rounded-2xl p-12 text-center">
