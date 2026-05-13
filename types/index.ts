@@ -13,4 +13,13 @@ export type Subtask = {
     title: string;
     status: 'In Queue' | 'In Progress' | 'Canceled';
     is_completed: boolean;
+    comments?: Comment[];
 };
+
+export type Comment = {
+    id: string;
+    subtask_id: string;
+    conent: string;
+    author: string;
+    created_at: string;
+}
