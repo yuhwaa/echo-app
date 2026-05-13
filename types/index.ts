@@ -19,7 +19,7 @@ export type Subtask = {
 export type Comment = {
     id: string;
     subtask_id: string;
-    conent: string;
+    content: string;
     author: string;
     created_at: string;
 }
