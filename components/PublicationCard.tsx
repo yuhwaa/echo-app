@@ -84,6 +84,15 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
       if (!error && data) {
         setComments((prev) => [...prev, data]);
         setNewComment('');
+      // Update the count on the subtask bar live
+        onUpdate({
+          id: pub.id,
+          subtasks: pub.subtasks.map(s => 
+            s.id === selectedSubtask.id 
+              ? { ...s, comment_count: (s.comment_count ?? 0) + 1 }
+              : s
+          )
+        });
       }
     };
     return (
@@ -172,11 +181,13 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
               <div className="flex gap-3 text-slate-400">
                 <div className="flex items-center gap-1">
                   <MessageSquare size={14} />
-                  <span className="text-xs">0</span>
+                  <span className="text-xs">
+                    {pub.subtasks.reduce((total, subtask) => total + (subtask.comment_count ?? 0), 0)}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Paperclip size={14} />
-                  <span className="text-xs">0</span>
+                  <span className="text-xs">0</span> {/* pending attachments feature */}
                 </div>
               </div>
               <span className="text-xs font-bold text-emerald-700 flex items-center gap-1 uppercase tracking-tighter">
@@ -249,18 +260,30 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
             </h3>
             {/* Subtask Map */}
             {pub.subtasks?.map((task) => (
-               <div 
-                 key={task.id} 
-                 onClick={() => {
+              <div 
+                key={task.id} 
+                onClick={() => {
                   setSelectedSubtask(task);
                   fetchComments(task.id);
                 }}
-                 className={`p-4 mb-2 rounded-xl border cursor-pointer transition-all ${
-                   selectedSubtask?.id === task.id ? 'border-emerald-500 bg-emerald-50/30' : 'border-gray-100 hover:border-emerald-200'
-                 }`}
-               >
-                 <span className="text-sm font-semibold">{task.title}</span>
-               </div>
+                className={`p-4 mb-2 rounded-xl border cursor-pointer transition-all ${
+                  selectedSubtask?.id === task.id ? 'border-emerald-500 bg-emerald-50/30' : 'border-gray-100 hover:border-emerald-200'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold">{task.title}</span>
+                  <div className="flex gap-3 text-slate-400">
+                    <div className="flex items-center gap-1">
+                      <MessageSquare size={12} />
+                      <span className="text-xs">{task.comment_count ?? 0}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Paperclip size={12} />
+                      <span className="text-xs">0</span> {/* pending attachments feature */}
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
