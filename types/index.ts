@@ -14,6 +14,7 @@ export type Subtask = {
     status: 'In Queue' | 'In Progress' | 'Canceled';
     is_completed: boolean;
     comments?: Comment[];
+    comment_count?: number;
 };
 
 export type Comment = {
