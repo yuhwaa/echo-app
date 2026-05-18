@@ -126,11 +126,11 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
             </div>
         <button
             onClick={handleDelete}
-            className="absolute top-2 right-2 p-2 text-slate-300 hover:text-red-500 transition-colors"
+            className="absolute top-2 right-2 p-2 text-slate-300 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"
         >
         <Trash2 size={16} />
         </button>
-            <CardHeader className="pb-2">
+            <CardHeader className="pt-7 pb-2">
           <div className="flex justify-between items-start">
             <Badge variant="outline" className="text-[10px] uppercase tracking-wider text-slate-500">
               {pub.type}
@@ -142,7 +142,7 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
                 defaultValue={pub.status} 
                 onValueChange={(value) => updatePublication({ status: value as Publication['status'] })}
               >
-                <SelectTrigger className="h-6 w-24 text-[10px] uppercase font-bold border-none bg-emerald-50 text-emerald-700 hover:bg-emerald-100">
+                <SelectTrigger className="h-6 w-auto text-[10px] uppercase font-bold border-none bg-emerald-50 text-emerald-700 hover:bg-emerald-100">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
