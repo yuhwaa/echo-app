@@ -50,7 +50,7 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
           .eq('id', pub.id);
       }
       setIsEditingTitle(false);
-    }
+    };
     const [comments, setComments] = useState<Comment[]>([]);
     const [newComment, setNewComment] = useState('');
     const [commentsLoading, setCommentsLoading] = useState(false);
@@ -90,6 +90,27 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
           subtasks: pub.subtasks.map(s => 
             s.id === selectedSubtask.id 
               ? { ...s, comment_count: (s.comment_count ?? 0) + 1 }
+              : s
+          )
+        });
+      }
+    };
+    const handleDeleteComment = async (commentId: string) => {
+      if (!confirm("Delete this comment?")) return;
+
+      const { error } = await supabase
+        .from('subtask_comments')
+        .delete()
+        .eq('id', commentId)
+
+      if (!error) {
+        setComments((prev) => prev.filter(c => c.id !== commentId ));
+
+        onUpdate({
+          id: pub.id,
+          subtasks: pub.subtasks.map(s =>
+            s.id === selectedSubtask?.id
+              ? { ...s, comment_count: Math.max((s.comment_count ?? 0) - 1, 0) }
               : s
           )
         });
@@ -316,12 +337,20 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
                 <p className="text-sm text-slate-400 text-center py-8">No comments yet</p>
               ) : (
                 comments.map((comment) => (
-                  <div key={comment.id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                  <div key={comment.id} className="group bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative">
                     <p className="text-xs font-bold text-slate-900">{comment.author}</p>
                     <p className="text-sm text-slate-600 mt-1">{comment.content}</p>
-                    <p className="text-[10px] text-slate-300 mt-2">
-                      {new Date(comment.created_at).toLocaleDateString()}
-                    </p>
+                    <div className="flex items-center justify-between mt-2">
+                      <p className="text-[10px] text-slate-300">
+                        {new Date(comment.created_at).toLocaleDateString()}
+                      </p>
+                      <button
+                        onClick={() => handleDeleteComment(comment.id)}
+                        className="opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-red-500 transition-all"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
