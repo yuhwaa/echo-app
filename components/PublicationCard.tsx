@@ -356,22 +356,20 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
               )}
             </div>
 
-            {/* New comment input */}
+            {/* New comment input - disabled until auth is implemented */}
             <div className="flex gap-2 pt-4 border-t border-gray-100">
               <Input
-                placeholder="Add a comment..."
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
-                className="flex-1 text-sm"
-            />
-            <button
-                onClick={handleAddComment}
-                className="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition-colors"
-            >
-              Post
-            </button>
-          </div>
+                placeholder="Sign in to comment..."
+                disabled
+                className="flex-1 text-sm opacity-50 cursor-not-allowed"
+              />
+              <button
+                disabled
+                className="px-4 py-2 bg-slate-200 text-slate-400 text-xs font-bold rounded-lg cursor-not-allowed"
+              >
+                Post
+              </button>
+            </div>
         </TabsContent>
 
           <TabsContent value="files" className="p-6">
