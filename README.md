@@ -7,7 +7,7 @@ Inspired by the workflow behind Oaktree Capital's Insights publications.
 - Track publications through In Queue → In Progress → Live
 - Production checklists per publication
 - Inline editing for titles, dates, and status
-- Team comments per task (in progress)
+- Team comments per task
 - File attachments per task (in progress)
 
 ## Built with
