@@ -4,6 +4,7 @@ import { supabase } from "@/utils/supabase";
 import PublicationCard from "@/components/PublicationCard";
 import CreatePublicationModal from "@/components/CreatePublicationModal";
 import { Publication, Subtask } from "@/types";
+import AuthModal from "@/components/AuthModal";
 
 export default function Home() {
   const [publications, setPublications] = useState<Publication[]>([]);
