@@ -9,6 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, CalendarDays, ChevronRight, MessageSquare, Paperclip, Pencil, Trash2, X } from "lucide-react";
 import { Publication, Subtask, Comment } from "@/types";
+import AuthModal from "@/components/AuthModal";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Publication, onDelete: (id: string) => void, onUpdate: (updatedPub: Partial<Publication> & { id: string }) => void }) {
     const handleDelete = async (e: React.MouseEvent) => {
@@ -116,6 +118,16 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
         });
       }
     };
+    const { isAuthenticated } = useAuth();
+    const [authModalAction, setAuthModalAction] = useState<string | null>(null);
+
+    const requireAuth = (action: string, callback:() => void) => {
+      if (!isAuthenticated) {
+        setAuthModalAction(action);
+        return;
+      }
+      callback();
+    }
     return (
         <Sheet onOpenChange={(open) => !open && setSelectedSubtask(null)}>
         <SheetTrigger asChild>
@@ -125,7 +137,7 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
                 />
             </div>
         <button
-            onClick={handleDelete}
+            onClick={(e) => requireAuth("delete this publication", () => handleDelete(e))}
             className="absolute top-2 right-2 p-2 text-slate-300 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"
         >
         <Trash2 size={16} />
@@ -140,7 +152,7 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
             <div onClick={(e) => e.stopPropagation()}> 
               <Select 
                 defaultValue={pub.status} 
-                onValueChange={(value) => updatePublication({ status: value as Publication['status'] })}
+                onValueChange={(value) => requireAuth("update the status", () => updatePublication({ status: value as Publication['status'] }))}
               >
                 <SelectTrigger className="h-6 w-auto text-[10px] uppercase font-bold border-none bg-emerald-50 text-emerald-700 hover:bg-emerald-100">
                   <SelectValue />
@@ -172,8 +184,8 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
       </span>
       <button 
         onClick={(e) => {
-          e.stopPropagation(); // Prevent opening the sheet
-          setIsEditingTitle(true);
+          e.stopPropagation();
+          requireAuth("edit the title", () => setIsEditingTitle(true));
         }}
         className="opacity-0 group-hover/title:opacity-100 p-1 hover:bg-slate-100 rounded transition-all"
       >
@@ -193,8 +205,7 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
             <input 
               type="date"
               defaultValue={pub.publication_date || ""}
-              onChange={(e) => updatePublication({ publication_date: e.target.value })}
-              className="text-xs font-medium bg-transparent border-none cursor-pointer hover:text-emerald-600 focus:ring-0 p-0"
+              onChange={(e) => requireAuth("edit the date", () => updatePublication({ publication_date: e.target.value }))}              className="text-xs font-medium bg-transparent border-none cursor-pointer hover:text-emerald-600 focus:ring-0 p-0"
             />
           </div>
 
@@ -345,7 +356,7 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
                         {new Date(comment.created_at).toLocaleDateString()}
                       </p>
                       <button
-                        onClick={() => handleDeleteComment(comment.id)}
+                        onClick={() => requireAuth("delete this comment", () => handleDeleteComment(comment.id))}
                         className="opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-red-500 transition-all"
                       >
                         <Trash2 size={12} />
@@ -382,6 +393,12 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
         )}
       </div>
     </SheetContent>
+    {authModalAction && (
+      <AuthModal
+        action={authModalAction}
+        onClose={() => setAuthModalAction(null)}
+      />
+    )}
         </Sheet>
     );
 }
