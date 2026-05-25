@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Publication } from "@/types";
 import { supabase } from "@/utils/supabase"; 
 import { TASK_TEMPLATES } from "@/lib/templates";
+import AuthModal from "@/components/AuthModal";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function CreatePublicationModal({ onAdd }: { onAdd: (pub: Publication) => void }) {
   const [title, setTitle] = useState("");
@@ -57,11 +59,23 @@ export default function CreatePublicationModal({ onAdd }: { onAdd: (pub: Publica
   }
   setLoading(false);
 };
+const { isAuthenticated } = useAuth();
+const [authModalAction, setAuthModalAction] = useState<string | null>(null);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-emerald-700 text-white rounded-full px-6 hover:bg-emerald-500 transition-colors shadow-md border-none">+ Create New</Button>
+        <Button 
+          className="bg-emerald-700 text-white rounded-full px-6 hover:bg-emerald-500 transition-colors shadow-md border-none"
+          onClick={(e) => {
+            if (!isAuthenticated) {
+              e.preventDefault();
+              setAuthModalAction("create a new publication");
+            }
+          }}
+        >
+          + Create New
+         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] border-gray-500 shadow-lg">
         <DialogHeader>
@@ -117,6 +131,13 @@ export default function CreatePublicationModal({ onAdd }: { onAdd: (pub: Publica
           <Button type="submit" className="w-full bg-emerald-700 hover:bg-emerald-600 text-white">Add</Button>
         </form>
       </DialogContent>
+      {authModalAction && (
+      <AuthModal
+        action={authModalAction}
+        onClose={() => setAuthModalAction(null)}
+      />
+    )}
     </Dialog>
+    
   );
 }
