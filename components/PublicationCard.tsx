@@ -137,7 +137,7 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
                 />
             </div>
         <button
-            onClick={(e) => requireAuth("delete this publication", () => handleDelete(e))}
+            onClick={(e) => { e.stopPropagation(); requireAuth("delete this publication", () => handleDelete(e)); }}
             className="absolute top-2 right-2 p-2 text-slate-300 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"
         >
         <Trash2 size={16} />
