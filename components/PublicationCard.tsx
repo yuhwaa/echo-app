@@ -128,9 +128,21 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
       }
       callback();
     }
+    const [sheetOpen, setSheetOpen] = useState(false);
     return (
-        <Sheet onOpenChange={(open) => !open && setSelectedSubtask(null)}>
-        <SheetTrigger asChild>
+      <>
+        <Sheet 
+        open={sheetOpen} 
+        onOpenChange={(open) => {
+            if (!open && authModalAction) {
+              setSheetOpen(true);
+              return;
+            }
+            setSheetOpen(open);
+            if (!open) setSelectedSubtask(null);
+          }}
+        >
+        <SheetTrigger asChild onClick={() => setSheetOpen(true)}>
         <Card className="cursor-pointer group relative hover:border-emeral-500 transition-all border-gray-300 shadow-sm hover:shadow-md overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-2 bg-slate-100">
                 <div className="h-full bg-emeral-500 transition-all duration-500" style={{ width: `${progress}%` }}
@@ -230,6 +242,7 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
         </Card>
         </SheetTrigger>
         <SheetContent 
+        style={{ pointerEvents: authModalAction ? 'none' : 'auto' }}
       showCloseButton={false}
       className={`transition-all duration-300 p-0 border-l border-gray-300 flex flex-col ${
         selectedSubtask ? "sm:max-w-[100vw] w-screen" : "sm:max-w-[66vw] w-[66vw]"
@@ -367,16 +380,24 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
               )}
             </div>
 
-            {/* New comment input - disabled until auth is implemented */}
+            {/* New comment input */}
             <div className="flex gap-2 pt-4 border-t border-gray-100">
               <Input
-                placeholder="Sign in to comment..."
-                disabled
-                className="flex-1 text-sm opacity-50 cursor-not-allowed"
+                placeholder={isAuthenticated ? "Add a comment..." : "Sign in to comment..."}
+                value={newComment}
+                onChange={(e) => isAuthenticated && setNewComment(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && requireAuth("post a comment", handleAddComment)}
+                readOnly={!isAuthenticated}
+                className={`flex-1 text-sm ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : ''}`}
+                onClick={() => !isAuthenticated && requireAuth("post a comment", () => {})}
               />
               <button
-                disabled
-                className="px-4 py-2 bg-slate-200 text-slate-400 text-xs font-bold rounded-lg cursor-not-allowed"
+                onClick={() => requireAuth("post a comment", handleAddComment)}
+                className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${
+                  isAuthenticated 
+                    ? 'bg-emerald-600 text-white hover:bg-emerald-700' 
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                }`}
               >
                 Post
               </button>
@@ -392,13 +413,14 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
           </div>
         )}
       </div>
-    </SheetContent>
-    {authModalAction && (
-      <AuthModal
-        action={authModalAction}
-        onClose={() => setAuthModalAction(null)}
-      />
-    )}
+    </SheetContent>    
         </Sheet>
+        {authModalAction && (
+          <AuthModal
+            action={authModalAction}
+            onClose={() => setAuthModalAction(null)}
+          />
+        )}
+      </>
     );
-}
+  }
