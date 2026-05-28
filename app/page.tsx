@@ -5,6 +5,7 @@ import PublicationCard from "@/components/PublicationCard";
 import CreatePublicationModal from "@/components/CreatePublicationModal";
 import { Publication, Subtask } from "@/types";
 import AuthModal from "@/components/AuthModal";
+import AvatarMenu from "@/components/AvatarMenu";
 
 export default function Home() {
   const [publications, setPublications] = useState<Publication[]>([]);
@@ -76,7 +77,10 @@ export default function Home() {
             <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">Echo</h1>
             <p className="text-slate-500 font-medium">Content Operations Command</p>
           </div>
-          <CreatePublicationModal onAdd={handleAdd} />
+          <div className="flex items-center gap-4">
+            <CreatePublicationModal onAdd={handleAdd} />
+            <AvatarMenu />
+          </div>
         </header>
         {loading ? (
           <div className="text-center py-20 text-slate-400">Loading your command center...</div>
