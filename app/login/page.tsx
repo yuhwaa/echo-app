@@ -32,7 +32,6 @@ export default function LoginPage() {
       <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm w-full max-w-sm">
         <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-1">Echo</h1>
         <p className="text-slate-500 text-sm mb-6">Sign in to continue</p>
-
         <div className="space-y-4">
           <input
             type="email"
@@ -59,6 +58,12 @@ export default function LoginPage() {
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
+          <button
+          onClick={() => router.push("/")}
+          className="text-xs text-slate-400 hover:text-emerald-600 transition-colors mb-4 items-center gap-1 w-full text-center"
+        >
+          ← Back to Dashboard
+        </button>
         </div>
       </div>
     </div>
