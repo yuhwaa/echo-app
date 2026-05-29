@@ -14,6 +14,6 @@ Inspired by the workflow behind Oaktree Capital's Insights publications.
 Next.js · TypeScript · Supabase · shadcn/ui · Tailwind CSS
 
 ## Roadmap
-- [ ] User authentication
+- [x] User authentication
 - [ ] GA4 performance integration
 - [ ] File upload via Supabase Storage
