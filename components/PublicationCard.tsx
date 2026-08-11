@@ -5,12 +5,15 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, CalendarDays, ChevronRight, MessageSquare, Paperclip, Pencil, Trash2, X } from "lucide-react";
+import { ArrowLeft, CalendarDays, ChevronRight, MessageSquare, Paperclip, Pencil, Trash2, X, MoreHorizontal } from "lucide-react";
 import { Publication, Subtask, Comment } from "@/types";
 import AuthModal from "@/components/AuthModal";
 import { useAuth } from "@/hooks/useAuth";
+import { useRef } from "react";
+
 
 export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Publication, onDelete: (id: string) => void, onUpdate: (updatedPub: Partial<Publication> & { id: string }) => void }) {
     const handleDelete = async (e: React.MouseEvent) => {
@@ -129,6 +132,8 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
       callback();
     }
     const [sheetOpen, setSheetOpen] = useState(false);
+
+    const dateInputRef = useRef<HTMLInputElement>(null);
     return (
       <>
         <Sheet 
@@ -148,14 +153,28 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
                 <div className="h-full bg-emeral-500 transition-all duration-500" style={{ width: `${progress}%` }}
                 />
             </div>
-        <button
-            onClick={(e) => { e.stopPropagation(); requireAuth("delete this publication", () => handleDelete(e)); }}
-            className="absolute top-2 right-2 p-2 text-slate-300 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"
-        >
-        <Trash2 size={16} />
-        </button>
+            <div className="absolute top-2 right-2" onClick={(e) => e.stopPropagation()}>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors">
+                    <MoreHorizontal size={16} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => requireAuth("edit the title", () => setIsEditingTitle(true))}>
+                    <Pencil size={14} className="mr-2" /> Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={(e) => { requireAuth("delete this publication", () => handleDelete(e)); }}
+                    className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                  >
+                    <Trash2 size={14} className="mr-2" /> Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
             <CardHeader className="pt-7 pb-2">
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
             <Badge variant="outline" className="text-[10px] uppercase tracking-wider text-slate-500">
               {pub.type}
             </Badge>
@@ -177,7 +196,7 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
               </Select>
             </div>
           </div>
-            <CardTitle className="group/title flex items-center gap-2 pt-2">
+            <CardTitle className="group/title flex items-center justify-between gap-2 pt-2">
   {isEditingTitle ? (
     <div className="flex items-center gap-2 w-full" onClick={(e) => e.stopPropagation()}>
       <Input 
@@ -194,32 +213,31 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
       <span className="text-xl font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
         {localTitle}
       </span>
-      <button 
-        onClick={(e) => {
-          e.stopPropagation();
-          requireAuth("edit the title", () => setIsEditingTitle(true));
-        }}
-        className="opacity-0 group-hover/title:opacity-100 p-1 hover:bg-slate-100 rounded transition-all"
-      >
-        <Pencil size={14} className="text-slate-400" />
-      </button>
     </>
   )}
 </CardTitle>
           </CardHeader>
             <CardContent>
             {/* INLINE DATE EDITING */}
-          <div 
-            className="flex items-center gap-2 text-slate-500 mb-4 group/date relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <CalendarDays size={14} />
-            <input 
-              type="date"
-              defaultValue={pub.publication_date || ""}
-              onChange={(e) => requireAuth("edit the date", () => updatePublication({ publication_date: e.target.value }))}              className="text-xs font-medium bg-transparent border-none cursor-pointer hover:text-emerald-600 focus:ring-0 p-0"
-            />
-          </div>
+            <div 
+              className="flex items-center gap-2 text-slate-500 mb-4 group/date relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={() => dateInputRef.current?.showPicker()}
+                className="hover:text-emerald-600 transition-colors"
+              >
+                <CalendarDays size={14} />
+              </button>
+              <input 
+                ref={dateInputRef}
+                type="date"
+                defaultValue={pub.publication_date || ""}
+                onChange={(e) => requireAuth("edit the date", () => updatePublication({ publication_date: e.target.value }))}
+                className="text-xs font-medium bg-transparent border-none cursor-pointer hover:text-emerald-600 focus:ring-0 p-0 [&::-webkit-calendar-picker-indicator]:hidden"
+              />
+            </div>
 
             <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-50">
               <div className="flex gap-3 text-slate-400">
@@ -244,11 +262,11 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
         <SheetContent 
         style={{ pointerEvents: authModalAction ? 'none' : 'auto' }}
       showCloseButton={false}
-      className={`transition-all duration-300 p-0 border-l border-gray-300 flex flex-col ${
-        selectedSubtask ? "sm:max-w-[100vw] w-screen" : "sm:max-w-[66vw] w-[66vw]"
+      className={`transition-all duration-300 p-0 border-l border-gray-300 flex flex-col w-screen ${selectedSubtask ? "sm:max-w-full" : "sm:max-w-[66vw]"
       }`}
     >
-      <SheetHeader className="sr-only">        
+      <SheetHeader className="sr-only">   
+        <SheetTitle>{pub.title}</SheetTitle>     
         <SheetDescription>{pub.type}</SheetDescription>
         <div className="flex items-center gap-4 group/master">
   {isEditingTitle ? (
@@ -267,7 +285,7 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
       </h2>
       <button 
         onClick={() => setIsEditingTitle(true)}
-        className="opacity-0 group-hover/master:opacity-100 p-2 hover:bg-slate-100 rounded-full transition-all"
+        className="opacity-100 sm:opacity-0 sm:group-hover/master:opacity-100 p-2 hover:bg-slate-100 rounded-full transition-all"
       >
         <Pencil size={18} className="text-slate-400" />
       </button>
@@ -276,18 +294,18 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
 </div>
       </SheetHeader>
       {/* 1. THE MASTER HEADER (Across both panels) */}
-      <div className="h-20 border-b border-gray-200 bg-white flex items-center justify-between px-8 shrink-0">
-        <div className="flex items-center gap-4">
-          <Badge className="bg-emerald-100 text-emerald-700 uppercase text-[10px]">
+      <div className="border-b border-gray-200 bg-white flex items-start justify-between px-4 sm:px-8 py-4 gap-4 shrink-0">
+        <div className="flex flex-col gap-1 min-w-0 flex-1">
+          <Badge className="bg-emerald-100 text-emerald-700 uppercase text-[10px] w-fit">
             {pub.type}
           </Badge>
-          <h2 className="text-2xl font-black text-slate-900 truncate max-w-md">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 truncate">
             {pub.title}
           </h2>
         </div>
-        
-        {/* SINGLE 'X' TO CLOSE EVERYTHING */}
-        <SheetClose className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+
+        {/* SINGLE 'X' TO CLOSE EVERYTHING — always top-right */}
+        <SheetClose className="p-2 hover:bg-slate-100 rounded-full transition-colors shrink-0">
           <X className="h-6 w-6 text-slate-400" />
         </SheetClose>
       </div>
@@ -297,9 +315,9 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
         
         {/* PANEL A: Subtask List */}
         <div className={`h-full overflow-y-auto bg-white transition-all duration-300 ${
-          selectedSubtask ? "w-1/2 border-r border-gray-100" : "w-full"
-        }`}>
-          <div className="p-8">
+  selectedSubtask ? "hidden sm:block sm:w-1/2 sm:border-r sm:border-gray-100" : "w-full"
+}`}>
+          <div className="p-4 sm:p-8">
             <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">
               Production Checklist
             </h3>
@@ -335,7 +353,7 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
 
         {/* PANEL B: Detailed View (Comments/Files) */}
         {selectedSubtask && (
-          <div className="w-1/2 h-full bg-slate-50 flex flex-col animate-in slide-in-from-right">
+          <div className="w-full sm:w-1/2 h-full bg-slate-50 flex flex-col animate-in slide-in-from-right">
             {/* SUB-HEADER FOR PANEL B */}
             <div className="px-6 py-4 border-b border-gray-200 bg-slate-50 flex items-center gap-4">
               <button 
@@ -370,7 +388,7 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
                       </p>
                       <button
                         onClick={() => requireAuth("delete this comment", () => handleDeleteComment(comment.id))}
-                        className="opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-red-500 transition-all"
+                        className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 p-1 text-slate-300 hover:text-red-500 transition-all"
                       >
                         <Trash2 size={12} />
                       </button>
