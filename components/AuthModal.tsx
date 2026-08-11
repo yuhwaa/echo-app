@@ -12,7 +12,7 @@ export default function AuthModal({ action, onClose }: AuthModalProps) {
   return (
     <div 
   className="fixed inset-0 bg-black/40 flex items-center justify-center z-[200] pointer-events-auto"
-  onClick={(e) => e.stopPropagation()}
+  onClick={(e) => { e.stopPropagation(); onClose(); }}
     >
     <div 
         className="bg-white rounded-2xl border border-gray-200 shadow-lg p-6 w-full max-w-sm mx-4 relative z-[201]"
@@ -24,9 +24,9 @@ export default function AuthModal({ action, onClose }: AuthModalProps) {
           </h2>
           <button
             onClick={(e) => { e.stopPropagation(); onClose(); }}
-            className="p-1 hover:bg-slate-100 rounded-full transition-colors"
+            className="p-2 hover:bg-slate-100 rounded-full transition-colors -mr-2 -mt-2"
           >
-            <X size={16} className="text-slate-400" />
+            <X size={20} className="text-slate-400" />
           </button>
         </div>
         <p className="text-sm text-slate-500 mb-6">

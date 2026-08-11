@@ -28,8 +28,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm w-full max-w-sm">
+    <div className="sm:min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="bg-white p-8 rounded-2xl sm:border sm:border-gray-200 sm:shadow-sm w-full max-w-sm">
         <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-1">Echo</h1>
         <p className="text-slate-500 text-sm mb-6">Sign in to continue</p>
         <div className="space-y-4">
