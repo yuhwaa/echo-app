@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/utils/supabase";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -12,8 +12,9 @@ import { ArrowLeft, CalendarDays, ChevronRight, MessageSquare, Paperclip, Pencil
 import { Publication, Subtask, Comment } from "@/types";
 import AuthModal from "@/components/AuthModal";
 import { useAuth } from "@/hooks/useAuth";
-import { useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
+const MotionCard = motion.create(Card);
 
 export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Publication, onDelete: (id: string) => void, onUpdate: (updatedPub: Partial<Publication> & { id: string }) => void }) {
     const handleDelete = async (e: React.MouseEvent) => {
@@ -134,6 +135,14 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
     const [sheetOpen, setSheetOpen] = useState(false);
 
     const dateInputRef = useRef<HTMLInputElement>(null);
+
+    const [ showEmptyState, setShowEmptyState ] = useState(comments.length === 0);
+
+    useEffect(() => {
+      if (comments.length > 0) {
+        setShowEmptyState(false);
+      }
+    }, [comments.length]);
     return (
       <>
         <Sheet 
@@ -148,9 +157,13 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
           }}
         >
         <SheetTrigger asChild onClick={() => setSheetOpen(true)}>
-        <Card className="cursor-pointer group relative hover:border-emeral-500 transition-all border-gray-300 shadow-sm hover:shadow-md overflow-hidden">
+        <MotionCard 
+          whileHover={{ scale: 1.015, boxShadow: "0 0 24px rgba(0, 130, 101, 0.5)" }}
+          transition={{ type: "spring", stiffness: 300, damping: 22 }}
+          className="cursor-pointer group relative hover:border-emerald-500 transition-colors border-gray-300 shadow-sm overflow-hidden"
+        >
             <div className="absolute top-0 left-0 w-full h-2 bg-slate-100">
-                <div className="h-full bg-emeral-500 transition-all duration-500" style={{ width: `${progress}%` }}
+                <div className="h-full bg-emerald-500 transition-all duration-500" style={{ width: `${progress}%` }}
                 />
             </div>
             <div className="absolute top-2 right-2" onClick={(e) => e.stopPropagation()}>
@@ -257,7 +270,7 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
               </span>
             </div>
           </CardContent>
-        </Card>
+        </MotionCard>
         </SheetTrigger>
         <SheetContent 
         style={{ pointerEvents: authModalAction ? 'none' : 'auto' }}
@@ -375,11 +388,30 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
           <TabsContent value="comments" className="flex-1 p-6 overflow-y-auto flex flex-col gap-4">
             {/* Comment list */}
             <div className="space-y-4 flex-1">
-              {comments.length === 0 ? (
-                <p className="text-sm text-slate-400 text-center py-8">No comments yet</p>
-              ) : (
-                comments.map((comment) => (
-                  <div key={comment.id} className="group bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative">
+              <AnimatePresence
+                onExitComplete={() => {
+                  if (comments.length === 0) setShowEmptyState(true);
+                }}
+              >
+              {showEmptyState && (
+                <motion.p
+                  key="empty-state"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-sm text-slate-400 text-center py-8"
+                >
+                No comments yet
+                  </motion.p>
+              )}
+                {comments.map((comment) => (
+                  <motion.div 
+                    key={comment.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y:-8 }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    className="group bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative"
+                  >
                     <p className="text-xs font-bold text-slate-900">{comment.author}</p>
                     <p className="text-sm text-slate-600 mt-1">{comment.content}</p>
                     <div className="flex items-center justify-between mt-2">
@@ -393,9 +425,9 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
                         <Trash2 size={12} />
                       </button>
                     </div>
-                  </div>
-                ))
-              )}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
 
             {/* New comment input */}
