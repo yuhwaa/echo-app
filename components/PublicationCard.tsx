@@ -15,6 +15,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 
 const MotionCard = motion.create(Card);
+const MotionSelectTrigger = motion(SelectTrigger);
+const statusStyles: Record<Publication['status'], { bg: string; text: string; hoverBg: string; glow: string }> = {
+  'In Queue': { bg: 'bg-slate-100', text: 'text-slate-600', hoverBg: 'hover:bg-slate-200', glow: 'rgba(100, 116, 139, 0.5)' },
+  'In Progress': { bg: 'bg-amber-50', text: 'text-amber-700', hoverBg: 'hover:bg-amber-100', glow: 'rgba(217, 119, 6, 0.5)' },
+  'Live': { bg: 'bg-emerald-50', text: 'text-emerald-700', hoverBg: 'hover:bg-emerald-100', glow: 'rgba(16, 185, 129, 0.5)' },
+};
 
 export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Publication, onDelete: (id: string) => void, onUpdate: (updatedPub: Partial<Publication> & { id: string }) => void }) {
     const handleDelete = async (e: React.MouseEvent) => {
@@ -143,6 +149,17 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
         setShowEmptyState(false);
       }
     }, [comments.length]);
+
+    const [status, setStatus] = useState(pub.status);
+    const [hasChangedStatus, setHasChangedStatus] = useState(false);
+
+    const handleStatusChange = (value: string) => {
+      requireAuth("update the status", () => {
+        setStatus(value as Publication['status']);
+        setHasChangedStatus(true);
+        updatePublication({ status: value as Publication['status'] });
+      });
+    }
     return (
       <>
         <Sheet 
@@ -195,12 +212,18 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
             {/* INLINE STATUS SELECT */}
             <div onClick={(e) => e.stopPropagation()}> 
               <Select 
-                defaultValue={pub.status} 
-                onValueChange={(value) => requireAuth("update the status", () => updatePublication({ status: value as Publication['status'] }))}
+                value={status} 
+                onValueChange={handleStatusChange}
               >
-                <SelectTrigger className="h-6 w-auto text-[10px] uppercase font-bold border-none bg-emerald-50 text-emerald-700 hover:bg-emerald-100">
+              <MotionSelectTrigger
+                key={status}
+                initial={hasChangedStatus ? { boxShadow: `inset 0 0 14px 4px ${statusStyles[status].glow}` } : false}
+                animate={hasChangedStatus ? { boxShadow: `inset 0 0 0px 0px ${statusStyles[status].glow}` } : undefined}
+                transition={{ duration: 0.05, ease: "easeOut" }}
+                className={`h-6 w-auto text-[10px] uppercase font-bold border-none transition-colors ${statusStyles[status].bg} ${statusStyles[status].text} ${statusStyles[status].hoverBg}`}
+              >
                   <SelectValue />
-                </SelectTrigger>
+                </MotionSelectTrigger>
                 <SelectContent>
                   <SelectItem value="In Queue">In Queue</SelectItem>
                   <SelectItem value="In Progress">In Progress</SelectItem>
