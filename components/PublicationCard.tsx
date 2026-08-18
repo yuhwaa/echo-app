@@ -20,6 +20,7 @@ const statusStyles: Record<Publication['status'], { bg: string; text: string; ho
   'In Queue': { bg: 'bg-slate-100', text: 'text-slate-600', hoverBg: 'hover:bg-slate-200', glow: 'rgba(100, 116, 139, 0.5)' },
   'In Progress': { bg: 'bg-amber-50', text: 'text-amber-700', hoverBg: 'hover:bg-amber-100', glow: 'rgba(217, 119, 6, 0.5)' },
   'Live': { bg: 'bg-emerald-50', text: 'text-emerald-700', hoverBg: 'hover:bg-emerald-100', glow: 'rgba(16, 185, 129, 0.5)' },
+  'Canceled': { bg: 'bg-red-50', text: 'text-red-700', hoverBg: 'hover:bg-red-100', glow: 'rgba(220, 38, 38, 0.5)' },
 };
 
 export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Publication, onDelete: (id: string) => void, onUpdate: (updatedPub: Partial<Publication> & { id: string }) => void }) {
@@ -228,6 +229,7 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
                   <SelectItem value="In Queue">In Queue</SelectItem>
                   <SelectItem value="In Progress">In Progress</SelectItem>
                   <SelectItem value="Live">Live</SelectItem>
+                  <SelectItem value="Canceled">Canceled</SelectItem>
                 </SelectContent>
               </Select>
             </div>
