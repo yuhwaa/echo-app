@@ -16,13 +16,13 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 
 const MotionCard = motion.create(Card);
 const MotionSelectTrigger = motion(SelectTrigger);
-const skeletonContainer = {
+const skeletonContainer: Variants = {
   initial: {},
   animate: {
     transition: { staggerChildren: 0.12 },
   },
 };
-const skeletonItem = {
+const skeletonItem: Variants = {
   initial: { opacity: 0.3 },
   animate: {
     opacity: [0.3, 0.7, 0.3],
