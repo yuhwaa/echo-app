@@ -12,7 +12,7 @@ import { ArrowLeft, CalendarDays, ChevronRight, MessageSquare, Paperclip, Pencil
 import { Publication, Subtask, Comment } from "@/types";
 import AuthModal from "@/components/AuthModal";
 import { useAuth } from "@/hooks/useAuth";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 
 const MotionCard = motion.create(Card);
 const MotionSelectTrigger = motion(SelectTrigger);
