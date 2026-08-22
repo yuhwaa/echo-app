@@ -12,15 +12,28 @@ import { ArrowLeft, CalendarDays, ChevronRight, MessageSquare, Paperclip, Pencil
 import { Publication, Subtask, Comment } from "@/types";
 import AuthModal from "@/components/AuthModal";
 import { useAuth } from "@/hooks/useAuth";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 
 const MotionCard = motion.create(Card);
 const MotionSelectTrigger = motion(SelectTrigger);
+const skeletonContainer: Variants = {
+  initial: {},
+  animate: {
+    transition: { staggerChildren: 0.12 },
+  },
+};
+const skeletonItem: Variants = {
+  initial: { opacity: 0.3 },
+  animate: {
+    opacity: [0.3, 0.7, 0.3],
+    transition: {duration: 1.2, repeat: Infinity, ease: "easeInOut"},
+  },
+};
 const statusStyles: Record<Publication['status'], { bg: string; text: string; hoverBg: string; glow: string }> = {
-  'In Queue': { bg: 'bg-slate-100', text: 'text-slate-600', hoverBg: 'hover:bg-slate-200', glow: 'rgba(100, 116, 139, 0.5)' },
-  'In Progress': { bg: 'bg-amber-50', text: 'text-amber-700', hoverBg: 'hover:bg-amber-100', glow: 'rgba(217, 119, 6, 0.5)' },
-  'Live': { bg: 'bg-emerald-50', text: 'text-emerald-700', hoverBg: 'hover:bg-emerald-100', glow: 'rgba(16, 185, 129, 0.5)' },
-  'Canceled': { bg: 'bg-red-50', text: 'text-red-700', hoverBg: 'hover:bg-red-100', glow: 'rgba(220, 38, 38, 0.5)' },
+  'In Queue': { bg: 'bg-slate-100', text: 'text-slate-600', hoverBg: 'hover:bg-slate-200', glow: 'rgba(100, 116, 139, 1)' },
+  'In Progress': { bg: 'bg-amber-50', text: 'text-amber-700', hoverBg: 'hover:bg-amber-100', glow: 'rgba(217, 119, 6, 1)' },
+  'Live': { bg: 'bg-emerald-50', text: 'text-emerald-700', hoverBg: 'hover:bg-emerald-100', glow: 'rgba(16, 185, 129, 1)' },
+  'Canceled': { bg: 'bg-red-50', text: 'text-red-700', hoverBg: 'hover:bg-red-100', glow: 'rgba(220, 38, 38, 1)' },
 };
 
 export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Publication, onDelete: (id: string) => void, onUpdate: (updatedPub: Partial<Publication> & { id: string }) => void }) {
@@ -365,6 +378,7 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
                 key={task.id} 
                 onClick={() => {
                   setSelectedSubtask(task);
+                  setComments([]);
                   fetchComments(task.id);
                 }}
                 className={`p-4 mb-2 rounded-xl border cursor-pointer transition-all ${
@@ -413,7 +427,24 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
           <TabsContent value="comments" className="flex-1 p-6 overflow-y-auto flex flex-col gap-4">
             {/* Comment list */}
             <div className="space-y-4 flex-1">
+              {commentsLoading ? (
+                <motion.div 
+                  variants={skeletonContainer} 
+                  initial="initial" 
+                  animate="animate"
+                  className="space-y-4"
+                >
+                {[0, 1, 2].map((i) => (
+                  <motion.div 
+                    key={i} 
+                    variants={skeletonItem} 
+                    className="h-16 bg-white rounded-xl border border-gray-200"
+                  />
+                ))}
+                </motion.div>
+              ) : (
               <AnimatePresence
+                key={selectedSubtask?.id}
                 onExitComplete={() => {
                   if (comments.length === 0) setShowEmptyState(true);
                 }}
@@ -453,6 +484,7 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
                   </motion.div>
                 ))}
               </AnimatePresence>
+              )}
             </div>
 
             {/* New comment input */}
