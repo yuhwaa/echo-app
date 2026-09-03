@@ -65,7 +65,24 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
       if (!error) {
         onUpdate({ id: pub.id, ...updates });
       }
-    }
+    };
+    const toggleSubtaskComplete = async (subtaskId: string, currentValue: boolean) => {
+      requireAuth("update task status", async () => {
+        const { error } = await supabase
+        .from('subtasks')
+        .update({ is_completed: !currentValue })
+        .eq('id', subtaskId);
+
+        if (!error) {
+          onUpdate({
+            id: pub.id,
+            subtasks: pub.subtasks.map(s =>
+              s.id === subtaskId ? { ...s, is_completed: !currentValue } : s
+            )
+          });
+        }
+      });
+    };
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [localTitle, setLocalTitle] = useState(pub.title);
     const handleTitleSave = async () => {
@@ -386,7 +403,17 @@ export default function PublicationCard ({ pub, onDelete, onUpdate }: { pub: Pub
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold">{task.title}</span>
+                <div className="flex items-center gap-3">
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={task.is_completed}
+                      onCheckedChange={() => toggleSubtaskComplete(task.id, task.is_completed)}
+                    />
+                  </div>
+                  <span className={`text-sm font-semibold ${task.is_completed ? 'line-through text-slate-400' : ''}`}>
+                    {task.title}
+                  </span>
+                  </div>
                   <div className="flex gap-3 text-slate-400">
                     <div className="flex items-center gap-1">
                       <MessageSquare size={12} />
