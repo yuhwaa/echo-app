@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 export default function CreatePublicationModal({ onAdd }: { onAdd: (pub: Publication) => void }) {
   const [title, setTitle] = useState("");
-  const [type, setType] = useState<Publication['type']>("Insights Commentary");
+  const [type, setType] = useState<Publication['type']>("Commentary");
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [publicationDate, setPublicationDate] = useState("");
@@ -107,9 +107,10 @@ const [authModalAction, setAuthModalAction] = useState<string | null>(null);
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Insights Commentary">Insights Commentary</SelectItem>
-                <SelectItem value="Insights Podcast">Insights Podcast</SelectItem>
-                <SelectItem value="Insights Video">Insights Video</SelectItem>
+                <SelectItem value="Commentary">Commentary</SelectItem>
+                <SelectItem value="Report">Report</SelectItem>
+                <SelectItem value="Podcast">Podcast</SelectItem>
+                <SelectItem value="Video">Video</SelectItem>
                 <SelectItem value="Memo">Memo</SelectItem>
               </SelectContent>
             </Select>
